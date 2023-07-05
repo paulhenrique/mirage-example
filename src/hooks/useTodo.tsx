@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
@@ -7,19 +8,15 @@ export interface Todo {
 }
 
 export const useTodo = () => {
-  const [todos, setTodos] = useState([] as Todo[]);
-  const [isLoading, setIsLoading] = useState(false);
   const fetchTodos = async () => {
-    try {
-      setIsLoading(true);
-      const { data = [] } = await axios.get("/api/todos");
-      setTodos(data);
-    } catch (err) {
-      console.error("Deu ruim", err);
-    } finally {
-      setIsLoading(false);
-    }
+    const { data = [] } = await axios.get("/api/todos");
+    return data;
   };
+
+  const query = useQuery(["todos"], () => fetchTodos(), {
+    staleTime: 1000,
+    refetchInterval: 1000,
+  });
 
   const createRandomTodo = async () => {
     const randomTodo: Todo = {
@@ -39,15 +36,10 @@ export const useTodo = () => {
     }
   };
 
-  useEffect(() => {
-    fetchTodos();
-  }, []);
-
   return {
-    todos,
+    ...query,
     fetchTodos,
     createRandomTodo,
-    isLoading,
   };
 };
 

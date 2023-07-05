@@ -1,4 +1,6 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useTodo } from "./hooks/useTodo";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import { createServer } from "miragejs";
 
@@ -25,8 +27,8 @@ server.post("/api/todos", (schema, request) => {
   return [];
 });
 
-const App = () => {
-  const { todos, createRandomTodo, isLoading } = useTodo();
+const Todos = () => {
+  const { data: todos, createRandomTodo, isLoading } = useTodo();
   return (
     <div>
       {isLoading && "Loading..."}
@@ -37,6 +39,25 @@ const App = () => {
         </div>
       )}
     </div>
+  );
+};
+
+const Example = () => {
+  const { data: todos } = useTodo();
+
+  return <pre>{JSON.stringify(todos, null, 2)}</pre>;
+};
+
+// Create a client
+const queryClient = new QueryClient();
+
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ReactQueryDevtools />
+      <Todos />
+      <Example />
+    </QueryClientProvider>
   );
 };
 
